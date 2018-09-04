@@ -11,21 +11,19 @@ import WebKit
 
 class NewsDetailViewController: UIViewController, WKNavigationDelegate {
     
-    var webView: WKWebView!
-    var url: URL = URL(string: "https://www.google.com" )!
+    @IBOutlet weak var webView: WKWebView!
+    @IBOutlet weak var activityIndicatorView: UIActivityIndicatorView!
     
-    override func loadView() {
-        webView = WKWebView()
-        webView.navigationDelegate = self
-        view = webView
-    }
+    var url: URL = URL(string: "https://www.google.com" )!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        webView.navigationDelegate = self
+        activityIndicatorView.startAnimating()
         webView.load(URLRequest(url:url))
-        
-        
     }
     
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        activityIndicatorView.stopAnimating()
+    }
 }

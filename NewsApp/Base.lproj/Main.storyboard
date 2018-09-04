@@ -98,10 +98,35 @@
                     <view key="view" contentMode="scaleToFill" id="0lb-Dj-0xk">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <wkWebView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="N2a-kw-zbd">
+                                <rect key="frame" x="0.0" y="64" width="375" height="554"/>
+                                <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <wkWebViewConfiguration key="configuration">
+                                    <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
+                                    <wkPreferences key="preferences"/>
+                                </wkWebViewConfiguration>
+                            </wkWebView>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="7b9-9f-qg4">
+                                <rect key="frame" x="177.5" y="331" width="20" height="20"/>
+                            </activityIndicatorView>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="7b9-9f-qg4" firstAttribute="centerX" secondItem="NKg-1W-jZO" secondAttribute="centerX" id="Km6-Iu-jIU"/>
+                            <constraint firstItem="NKg-1W-jZO" firstAttribute="bottom" secondItem="N2a-kw-zbd" secondAttribute="bottom" id="dX9-wy-2C4"/>
+                            <constraint firstItem="7b9-9f-qg4" firstAttribute="centerY" secondItem="NKg-1W-jZO" secondAttribute="centerY" id="ji3-I3-eST"/>
+                            <constraint firstItem="N2a-kw-zbd" firstAttribute="top" secondItem="NKg-1W-jZO" secondAttribute="top" id="oKP-ay-uLw"/>
+                            <constraint firstItem="N2a-kw-zbd" firstAttribute="leading" secondItem="NKg-1W-jZO" secondAttribute="leading" id="qwc-uw-5Kk"/>
+                            <constraint firstItem="NKg-1W-jZO" firstAttribute="trailing" secondItem="N2a-kw-zbd" secondAttribute="trailing" id="xsS-ht-fDM"/>
+                        </constraints>
                         <viewLayoutGuide key="safeArea" id="NKg-1W-jZO"/>
                     </view>
                     <navigationItem key="navigationItem" title="Title" id="Qy9-Ok-Pj2"/>
+                    <connections>
+                        <outlet property="activityIndicatorView" destination="7b9-9f-qg4" id="ctn-JG-Su5"/>
+                        <outlet property="webView" destination="N2a-kw-zbd" id="QrA-4k-R5d"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Yj4-vz-NCf" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -111,6 +136,11 @@
         <scene sceneID="wg7-f3-ORb">
             <objects>
                 <viewController id="8rJ-Kc-sve" customClass="SearchViewController" customModule="NewsApp" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="rhN-yX-fex">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </tableView>
                     <navigationItem key="navigationItem" id="age-4r-W4U"/>
                     <connections>
                         <outlet property="searchDisplayController" destination="1b3-4o-o2x" id="mr3-mH-tbD"/>
