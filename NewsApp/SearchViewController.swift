@@ -10,8 +10,9 @@ import UIKit
 
 class SearchViewController: UIViewController {
 
+    @IBOutlet weak var tableView: UITableView!
+    
     let searchController = UISearchController(searchResultsController: nil)
-    var filteredNews = [Article]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,28 +23,55 @@ class SearchViewController: UIViewController {
         searchController.searchBar.placeholder = "Search News"
         navigationItem.searchController = searchController
         definesPresentationContext = true
-
-    }
-
-
-    // MARK: - Private instance methods
-    
-    func searchBarIsEmpty() -> Bool {
-        // Returns true if the text is empty or nil
-        return searchController.searchBar.text?.isEmpty ?? true
     }
     
-    func filterContentForSearchText(_ searchText: String, scope: String = "All") {
-        filteredNews = DataManager.shared.searchedNews
-        
-        //tableView.reloadData()
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showDetail" {
+            if let indexPath = tableView.indexPathForSelectedRow {
+                guard let controller = segue.destination as? NewsDetailViewController else {
+                    print ("Error: Storyboard mis-configuration")
+                    return
+                }
+                
+                let article = DataManager.shared.searchedNews[indexPath.row]
+                if let url = URL (string: article.urlString!){
+                    controller.url = url
+                }
+                tableView.deselectRow(at: indexPath, animated: true)
+            }
+        }
     }
-
 }
 
 extension SearchViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         
+        DataManager.shared.fetchFilteredNews(){ [weak self] in
+ 
+            DispatchQueue.main.async {
+                self?.tableView.reloadData()
+            }
+        }
     }
 }
 
+extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return DataManager.shared.searchedNews.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "searchResultCell", for: indexPath)
+        
+        let article = DataManager.shared.currentHeadLines[indexPath.row]
+        
+        cell.textLabel?.text = article.title
+        cell.detailTextLabel?.text = article.description
+
+        return cell
+    }
+}
