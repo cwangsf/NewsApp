@@ -13,7 +13,7 @@ import AlamofireImage
 class HeadlineViewController: UIViewController {
 
     @IBOutlet weak var tableView: UITableView!
-    let placeholderImage = UIImage(named: "beach.jpg")
+    let placeholderImage = UIImage(named: "placeholder")
     
     var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()

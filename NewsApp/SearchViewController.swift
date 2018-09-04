@@ -11,6 +11,7 @@ import UIKit
 class SearchViewController: UIViewController {
 
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     let searchController = UISearchController(searchResultsController: nil)
     
@@ -25,6 +26,16 @@ class SearchViewController: UIViewController {
         definesPresentationContext = true
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationItem.hidesSearchBarWhenScrolling = false
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        navigationItem.hidesSearchBarWhenScrolling = true
+    }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showDetail" {
             if let indexPath = tableView.indexPathForSelectedRow {
@@ -33,7 +44,7 @@ class SearchViewController: UIViewController {
                     return
                 }
                 
-                let article = DataManager.shared.searchedNews[indexPath.row]
+                let article = DataManager.shared.filteredNews[indexPath.row]
                 if let url = URL (string: article.urlString!){
                     controller.url = url
                 }
@@ -45,11 +56,17 @@ class SearchViewController: UIViewController {
 
 extension SearchViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
-        
-        DataManager.shared.fetchFilteredNews(){ [weak self] in
- 
-            DispatchQueue.main.async {
-                self?.tableView.reloadData()
+        if let isClear = searchController.searchBar.text?.isEmpty, isClear == true {
+            DataManager.shared.filteredNews.removeAll()
+            tableView.reloadData()
+        } else {
+            activityIndicator.startAnimating()
+            DataManager.shared.fetchFilteredNews(with:searchController.searchBar.text){ [weak self] in
+                
+                DispatchQueue.main.async {
+                    self?.tableView.reloadData()
+                    self?.activityIndicator.stopAnimating()
+                }
             }
         }
     }
@@ -61,16 +78,16 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return DataManager.shared.searchedNews.count
+        return DataManager.shared.filteredNews.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "searchResultCell", for: indexPath)
         
-        let article = DataManager.shared.currentHeadLines[indexPath.row]
+        let article = DataManager.shared.filteredNews[indexPath.row]
         
         cell.textLabel?.text = article.title
-        cell.detailTextLabel?.text = article.description
+        cell.detailTextLabel?.text = article.source?.name
 
         return cell
     }

@@ -178,7 +178,7 @@
                                     <outlet property="prefetchDataSource" destination="8rJ-Kc-sve" id="OIH-ne-2VL"/>
                                 </connections>
                             </tableView>
-                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="3af-5N-1t3">
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="3af-5N-1t3">
                                 <rect key="frame" x="177" y="331" width="20" height="20"/>
                             </activityIndicatorView>
                         </subviews>
@@ -195,6 +195,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="age-4r-W4U"/>
                     <connections>
+                        <outlet property="activityIndicator" destination="3af-5N-1t3" id="hHc-kX-2jF"/>
                         <outlet property="searchDisplayController" destination="1b3-4o-o2x" id="mr3-mH-tbD"/>
                         <outlet property="tableView" destination="dTh-GB-aD7" id="3ny-xC-MOs"/>
                     </connections>

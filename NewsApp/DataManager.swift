@@ -12,102 +12,66 @@ import ObjectMapper
 import AlamofireObjectMapper
 import AlamofireImage
 
-class ArticleResponse: Mappable {
-    var status: String?
-    var totalResults: Int?
-    var articles: [Article]?
-    
-    required init?(map:Map) {
-        mapping(map:map)
-    }
-    
-    func mapping(map: Map) {
-        status <- map["status"]
-        totalResults <- map["totalResults"]
-        articles <- map["articles"]
-    }
-}
-
-class Article: Mappable {
-    //var author:String
-    var title: String?
-    var description: String?
-    var urlString: String?
-    var urlToImage: String?
-    
-    required init?(map:Map) {
-        mapping(map:map)
-    }
-    
-    func mapping(map: Map) {
-        title <- map["title"]
-        description <- map["description"]
-        urlString <- map["url"]
-        urlToImage <- map["urlToImage"]
-    }
-}
-
-class ArticleSource: Mappable {
-    var id: String?
-    var name: String?
-    required init?(map:Map) {
-        mapping(map:map)
-    }
-    
-    func mapping(map: Map) {
-        id <- map["id"]
-        name <- map["name"]
-    }
-}
-
 class DataManager {
     
-    let queue = DispatchQueue(label: "com.wang.newsapp",
+    let concurrentQueue = DispatchQueue(label: "com.wang.newsapp.network",
                               qos: .userInitiated,
                               attributes: .concurrent)
+    let serialQueue = DispatchQueue(label: "com.wang.newsapp.updatedata",
+                                    qos: .userInitiated,
+                                    attributes: .concurrent)
     
     let topUSNewsUrl = "https://newsapi.org/v2/top-headlines?country=us&apiKey=9090f1da912f469ab2079b141f79809a"
-    
-    let allNewsWithQueryUrl = "https://newsapi.org/v2/everything?q=bitcoin&apiKey=9090f1da912f469ab2079b141f79809a"
     
     static var shared: DataManager = DataManager()
     
     var currentHeadLines = [Article]()
     
-    var searchedNews = [Article]()
+    var _filteredNews = [Article]()
+    var filteredNews: [Article] {
+        get {
+            return serialQueue.sync{ _filteredNews }
+        }
+        set {
+            serialQueue.sync{ [weak self] in
+                self?._filteredNews = newValue
+            }
+        }
+    }
     
     func fetchHeadlineNews(completion:@escaping ()->Void) {
-        
-        
-        Alamofire.request(topUSNewsUrl).responseObject(queue: queue) {(response: DataResponse<ArticleResponse>) in
+
+        Alamofire.request(topUSNewsUrl).responseObject(queue: concurrentQueue) {(response: DataResponse<ArticleResponse>) in
             
             guard let articleResponse = response.result.value else {
                 return
             }
             if let articles = articleResponse.articles {
                 DataManager.shared.currentHeadLines = articles
-
             }
             completion()
-            
         }
     }
     
-    func fetchFilteredNews(completion: @escaping ()->Void) {
-        //let searchUrl = allNewsWithQueryUrl
-        Alamofire.request(allNewsWithQueryUrl).responseObject(queue: queue) {(response: DataResponse<ArticleResponse>) in
+    func fetchFilteredNews(with text: String?, completion: @escaping ()->Void) {
+        guard let text = text,
+            let escapedString = text.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+            else { return }
+
+        let searchUrl = "https://newsapi.org/v2/everything?q=" + escapedString + "&apiKey=9090f1da912f469ab2079b141f79809a"
+        
+        Alamofire.request(searchUrl).responseObject(queue: concurrentQueue) {(response: DataResponse<ArticleResponse>) in
             
             guard let articleResponse = response.result.value else {
                 return
             }
             if let articles = articleResponse.articles {
-                DataManager.shared.searchedNews = articles
-                
+                DataManager.shared.filteredNews = articles
+                if let url = response.request?.url {
+                    print("Back from URL request: \(url)")
+                }
             }
             completion()
-            
         }
     }
-
-
 }
